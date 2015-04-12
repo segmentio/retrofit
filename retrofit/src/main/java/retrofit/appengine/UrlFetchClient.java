@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import okio.Buffer;
 import retrofit.client.Client;
 import retrofit.client.Header;
 import retrofit.client.Request;
@@ -76,9 +77,9 @@ public class UrlFetchClient implements Client {
         fetchRequest.addHeader(new HTTPHeader("Content-Type", mimeType));
       }
 
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      body.writeTo(baos);
-      fetchRequest.setPayload(baos.toByteArray());
+      Buffer buffer = new Buffer();
+      body.writeTo(buffer);
+      fetchRequest.setPayload(buffer.readByteArray());
     }
 
     return fetchRequest;

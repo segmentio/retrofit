@@ -21,11 +21,11 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.ResponseBody;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import okio.BufferedSink;
+import okio.BufferedSource;
 import retrofit.mime.TypedInput;
 import retrofit.mime.TypedOutput;
 
@@ -54,9 +54,9 @@ public class OkClient implements Client {
   }
 
   static com.squareup.okhttp.Request createRequest(Request request) {
-    com.squareup.okhttp.Request.Builder builder = new com.squareup.okhttp.Request.Builder()
-        .url(request.getUrl())
-        .method(request.getMethod(), createRequestBody(request.getBody()));
+    com.squareup.okhttp.Request.Builder builder =
+        new com.squareup.okhttp.Request.Builder().url(request.getUrl())
+            .method(request.getMethod(), createRequestBody(request.getBody()));
 
     List<Header> headers = request.getHeaders();
     for (int i = 0, size = headers.size(); i < size; i++) {
@@ -85,7 +85,7 @@ public class OkClient implements Client {
       }
 
       @Override public void writeTo(BufferedSink sink) throws IOException {
-        body.writeTo(sink.outputStream());
+        body.writeTo(sink);
       }
 
       @Override public long contentLength() {
@@ -108,8 +108,8 @@ public class OkClient implements Client {
         return body.contentLength();
       }
 
-      @Override public InputStream in() throws IOException {
-        return body.byteStream();
+      @Override public BufferedSource in() throws IOException {
+        return body.source();
       }
     };
   }

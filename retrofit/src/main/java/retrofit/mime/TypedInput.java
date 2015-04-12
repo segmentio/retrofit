@@ -16,7 +16,7 @@
 package retrofit.mime;
 
 import java.io.IOException;
-import java.io.InputStream;
+import okio.BufferedSource;
 
 /**
  * Binary data with an associated mime type.
@@ -35,5 +35,5 @@ public interface TypedInput {
    * Read bytes as stream. Unless otherwise specified, this method may only be called once. It is
    * the responsibility of the caller to close the stream.
    */
-  InputStream in() throws IOException;
+  BufferedSource in() throws IOException;
 }

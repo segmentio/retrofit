@@ -15,11 +15,11 @@
  */
 package retrofit.mime;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.BufferedSource;
 
 /**
  * Byte array and its mime type.
@@ -62,12 +62,12 @@ public class TypedByteArray implements TypedInput, TypedOutput {
     return bytes.length;
   }
 
-  @Override public void writeTo(OutputStream out) throws IOException {
-    out.write(bytes);
+  @Override public void writeTo(BufferedSink sink) throws IOException {
+    sink.write(bytes);
   }
 
-  @Override public InputStream in() throws IOException {
-    return new ByteArrayInputStream(bytes);
+  @Override public BufferedSource in() throws IOException {
+    return new Buffer().write(bytes);
   }
 
   @Override public boolean equals(Object o) {

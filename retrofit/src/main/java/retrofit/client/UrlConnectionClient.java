@@ -22,6 +22,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import okio.BufferedSource;
+import okio.Okio;
 import retrofit.mime.TypedInput;
 import retrofit.mime.TypedOutput;
 
@@ -39,8 +41,7 @@ public class UrlConnectionClient implements Client {
   }
 
   protected HttpURLConnection openConnection(Request request) throws IOException {
-    HttpURLConnection connection =
-        (HttpURLConnection) new URL(request.getUrl()).openConnection();
+    HttpURLConnection connection = (HttpURLConnection) new URL(request.getUrl()).openConnection();
     connection.setConnectTimeout(Defaults.CONNECT_TIMEOUT_MILLIS);
     connection.setReadTimeout(Defaults.READ_TIMEOUT_MILLIS);
     return connection;
@@ -65,7 +66,7 @@ public class UrlConnectionClient implements Client {
       } else {
         connection.setChunkedStreamingMode(CHUNK_SIZE);
       }
-      body.writeTo(connection.getOutputStream());
+      body.writeTo(Okio.buffer(Okio.sink(connection.getOutputStream())));
     }
   }
 
@@ -113,8 +114,8 @@ public class UrlConnectionClient implements Client {
       return length;
     }
 
-    @Override public InputStream in() throws IOException {
-      return stream;
+    @Override public BufferedSource in() throws IOException {
+      return Okio.buffer(Okio.source(stream));
     }
   }
 }

@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Executor;
+import okio.Buffer;
 import retrofit.client.Request;
 import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
@@ -58,9 +59,9 @@ final class Utils {
     }
 
     String bodyMime = body.mimeType();
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    body.writeTo(baos);
-    body = new TypedByteArray(bodyMime, baos.toByteArray());
+    Buffer buffer = new Buffer();
+    body.writeTo(buffer);
+    body = new TypedByteArray(bodyMime, buffer.readByteArray());
 
     return new Request(request.getMethod(), request.getUrl(), request.getHeaders(), body);
   }
@@ -76,7 +77,7 @@ final class Utils {
     }
 
     String bodyMime = body.mimeType();
-    InputStream is = body.in();
+    InputStream is = body.in().inputStream();
     try {
       byte[] bodyBytes = Utils.streamToBytes(is);
       body = new TypedByteArray(bodyMime, bodyBytes);

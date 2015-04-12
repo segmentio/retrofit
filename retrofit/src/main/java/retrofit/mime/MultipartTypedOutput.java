@@ -16,13 +16,13 @@
 
 package retrofit.mime;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
+import okio.Buffer;
+import okio.BufferedSink;
 
 public final class MultipartTypedOutput implements TypedOutput {
   public static final String DEFAULT_TRANSFER_ENCODING = "binary";
@@ -47,11 +47,11 @@ public final class MultipartTypedOutput implements TypedOutput {
       this.boundary = boundary;
     }
 
-    public void writeTo(OutputStream out) throws IOException {
+    public void writeTo(BufferedSink sink) throws IOException {
       build();
-      out.write(partBoundary);
-      out.write(partHeader);
-      body.writeTo(out);
+      sink.write(partBoundary);
+      sink.write(partHeader);
+      body.writeTo(sink);
     }
 
     public long size() {
@@ -90,9 +90,9 @@ public final class MultipartTypedOutput implements TypedOutput {
   List<byte[]> getParts() throws IOException {
     List<byte[]> parts = new ArrayList<byte[]>(mimeParts.size());
     for (MimePart part : mimeParts) {
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      part.writeTo(bos);
-      parts.add(bos.toByteArray());
+      Buffer buffer = new Buffer();
+      part.writeTo(buffer);
+      parts.add(buffer.readByteArray());
     }
     return parts;
   }
@@ -139,11 +139,11 @@ public final class MultipartTypedOutput implements TypedOutput {
     return length;
   }
 
-  @Override public void writeTo(OutputStream out) throws IOException {
+  @Override public void writeTo(BufferedSink sink) throws IOException {
     for (MimePart part : mimeParts) {
-      part.writeTo(out);
+      part.writeTo(sink);
     }
-    out.write(footer);
+    sink.write(footer);
   }
 
   private static byte[] buildBoundary(String boundary, boolean first, boolean last) {

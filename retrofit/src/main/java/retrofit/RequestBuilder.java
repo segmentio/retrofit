@@ -16,7 +16,6 @@
 package retrofit;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -25,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import okio.BufferedSink;
 import retrofit.client.Header;
 import retrofit.client.Request;
 import retrofit.converter.Converter;
@@ -439,8 +439,8 @@ final class RequestBuilder implements RequestInterceptor.RequestFacade {
       return delegate.length();
     }
 
-    @Override public void writeTo(OutputStream out) throws IOException {
-      delegate.writeTo(out);
+    @Override public void writeTo(BufferedSink sink) throws IOException {
+      delegate.writeTo(sink);
     }
   }
 }

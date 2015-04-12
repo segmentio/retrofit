@@ -15,13 +15,13 @@
  */
 package retrofit.mime;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URLEncoder;
+import okio.Buffer;
+import okio.BufferedSink;
 
 public final class FormUrlEncodedTypedOutput implements TypedOutput {
-  final ByteArrayOutputStream content = new ByteArrayOutputStream();
+  final Buffer content = new Buffer();
 
   public void addField(String name, String value) {
     addField(name, true, value, true);
@@ -35,7 +35,7 @@ public final class FormUrlEncodedTypedOutput implements TypedOutput {
       throw new NullPointerException("value");
     }
     if (content.size() > 0) {
-      content.write('&');
+      content.writeByte((byte) '&');
     }
     try {
       if (encodeName) {
@@ -46,7 +46,7 @@ public final class FormUrlEncodedTypedOutput implements TypedOutput {
       }
 
       content.write(name.getBytes("UTF-8"));
-      content.write('=');
+      content.writeByte((byte) '=');
       content.write(value.getBytes("UTF-8"));
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -65,7 +65,7 @@ public final class FormUrlEncodedTypedOutput implements TypedOutput {
     return content.size();
   }
 
-  @Override public void writeTo(OutputStream out) throws IOException {
-    out.write(content.toByteArray());
+  @Override public void writeTo(BufferedSink sink) throws IOException {
+    sink.writeAll(content);
   }
 }

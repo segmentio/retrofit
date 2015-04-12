@@ -16,10 +16,11 @@
 package retrofit.mime;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import okio.BufferedSink;
+import okio.BufferedSource;
+import okio.Okio;
+import okio.Source;
 
 /**
  * File and its mime type.
@@ -65,20 +66,19 @@ public class TypedFile implements TypedInput, TypedOutput {
     return file.getName();
   }
 
-  @Override public InputStream in() throws IOException {
-    return new FileInputStream(file);
+  @Override public BufferedSource in() throws IOException {
+    return Okio.buffer(Okio.source(file));
   }
 
-  @Override public void writeTo(OutputStream out) throws IOException {
-    byte[] buffer = new byte[BUFFER_SIZE];
-    FileInputStream in = new FileInputStream(file);
+  @Override public void writeTo(BufferedSink sink) throws IOException {
+    Source source = null;
     try {
-      int read;
-      while ((read = in.read(buffer)) != -1) {
-        out.write(buffer, 0, read);
-      }
+      source = Okio.source(file);
+      sink.writeAll(source);
     } finally {
-      in.close();
+      if (source != null) {
+        source.close();
+      }
     }
   }
 

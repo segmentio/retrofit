@@ -15,14 +15,14 @@
  */
 package retrofit.client;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import okio.Buffer;
+import okio.Okio;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -162,13 +162,13 @@ public class ApacheClient implements Client {
     }
 
     @Override public InputStream getContent() throws IOException {
-      ByteArrayOutputStream out = new ByteArrayOutputStream();
-      typedOutput.writeTo(out);
-      return new ByteArrayInputStream(out.toByteArray());
+      Buffer buffer = new Buffer();
+      typedOutput.writeTo(buffer);
+      return buffer.inputStream();
     }
 
     @Override public void writeTo(OutputStream out) throws IOException {
-      typedOutput.writeTo(out);
+      typedOutput.writeTo(Okio.buffer(Okio.sink(out)));
     }
 
     @Override public boolean isStreaming() {

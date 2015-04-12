@@ -19,9 +19,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import okio.BufferedSink;
 import retrofit.mime.MimeUtil;
 import retrofit.mime.TypedInput;
 import retrofit.mime.TypedOutput;
@@ -59,7 +59,7 @@ public class GsonConverter implements Converter {
     }
     InputStreamReader isr = null;
     try {
-      isr = new InputStreamReader(body.in(), charset);
+      isr = new InputStreamReader(body.in().inputStream(), charset);
       return gson.fromJson(isr, type);
     } catch (IOException e) {
       throw new ConversionException(e);
@@ -104,8 +104,8 @@ public class GsonConverter implements Converter {
       return jsonBytes.length;
     }
 
-    @Override public void writeTo(OutputStream out) throws IOException {
-      out.write(jsonBytes);
+    @Override public void writeTo(BufferedSink sink) throws IOException {
+      sink.write(jsonBytes);
     }
   }
 }

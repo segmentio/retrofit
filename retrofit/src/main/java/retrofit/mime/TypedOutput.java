@@ -16,7 +16,7 @@
 package retrofit.mime;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import okio.BufferedSink;
 
 /**
  * Binary data with an associated mime type.
@@ -24,9 +24,11 @@ import java.io.OutputStream;
  * @author Bob Lee (bob@squareup.com)
  */
 public interface TypedOutput {
-  /** Original filename.
+  /**
+   * Original filename.
    *
-   * Used only for multipart requests, may be null. */
+   * Used only for multipart requests, may be null.
+   */
   String fileName();
 
   /** Returns the mime type. */
@@ -36,5 +38,5 @@ public interface TypedOutput {
   long length();
 
   /** Writes these bytes to the given output stream. */
-  void writeTo(OutputStream out) throws IOException;
+  void writeTo(BufferedSink sink) throws IOException;
 }
